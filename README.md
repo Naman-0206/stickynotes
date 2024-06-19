@@ -11,7 +11,7 @@ StickyNotes is a simple and intuitive note-taking application built using React 
 
 ## Screenshots
 
-![StickyNotes UI](screenshots\image.png)
+![StickyNotes UI](screenshots/image.png)
 
 ## Getting Started
 
