@@ -1,14 +1,12 @@
 import { createRef, useRef, useState } from "react";
-import "./App.css";
 import Note from "./components/Note";
 import NewBtn from "./components/NewBtn";
-
+import { noteThemes } from "./components/constants";
+import OutsideAlerter from "./useOutsideAlerter";
 function App() {
   let savedNotes = JSON.parse(localStorage.getItem("notes")) || [];
 
-  console.log(savedNotes);
   !savedNotes.length ? (savedNotes = [{ id: 1, content: "", position: { x: "50%", y: "50%" } }]) : savedNotes;
-  console.log(savedNotes);
 
   const [notes, setNotes] = useState(savedNotes);
   const noteRefs = useRef([]);
@@ -48,29 +46,40 @@ function App() {
 
   const createNewNote = () => {
     const newNote = {
-      id: notes.length + 1,
+      id: notes.length ? notes[notes.length - 1].id + 1 : 1,
       content: "",
       position: {
         x: "50vw",
         y: "50vh",
       },
+      theme: noteThemes[Math.floor(Math.random() * noteThemes.length + 1)],
+      rotation: Math.floor(Math.random() * 10) - 5,
     };
-    console.log(newNote);
+    // console.log(newNote);
     const updatedNotes = [...notes, newNote];
     setNotes(updatedNotes);
     localStorage.setItem("notes", JSON.stringify(updatedNotes));
   };
   const updateNotePosition = (id, newPosition) => {
-    const updatedNotes = notes.map((note) => (note.id === id ? { ...note, position: newPosition } : note));
+    const updatedNotes = notes.map((note) =>
+      note.id === id ? { ...note, position: newPosition, rotation: Math.floor(Math.random() * 10) - 5 } : note
+    );
+    console.log(updatedNotes);
     setNotes(updatedNotes);
     localStorage.setItem("notes", JSON.stringify(updatedNotes));
-    console.log(updatedNotes);
+    // console.log(updatedNotes);
   };
   const updateNoteContent = (id, newContent) => {
     const updatedNotes = notes.map((note) => (note.id === id ? { ...note, content: newContent } : note));
     setNotes(updatedNotes);
     localStorage.setItem("notes", JSON.stringify(updatedNotes));
-    console.log(updatedNotes);
+    // console.log(updatedNotes);
+  };
+  const updateNoteTheme = (id, updatedTheme = {}) => {
+    const updatedNotes = notes.map((note) => (note.id === id ? { ...note, theme: updatedTheme } : note));
+    setNotes(updatedNotes);
+    localStorage.setItem("notes", JSON.stringify(updatedNotes));
+    // console.log(updatedNotes);
   };
   const deleteNote = (id) => {
     const updatedNotes = notes.filter((note) => note.id !== id);
@@ -92,12 +101,17 @@ function App() {
                 : (noteRefs.current[note.id] = createRef(note.id))
             }
             initialPos={note.position}
-            content={note.content}
             onMouseDown={(e) => handleDragStart(note.id, e)}
+            rotation={note.rotation}
+            content={note.content}
             contentChangeHandler={(newContent) => {
               updateNoteContent(note.id, newContent);
             }}
             deleteNoteHandler={() => deleteNote(note.id)}
+            theme={note.theme ? note.theme : noteThemes[0]}
+            themeChangeHandler={(updatedTheme) => {
+              updateNoteTheme(note.id, updatedTheme);
+            }}
           />
         );
       })}
